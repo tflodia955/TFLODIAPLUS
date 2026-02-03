@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Math Lectures - Class 9</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        :root {
+            --primary: #4361EE;
+            --bg: #F5F7FA;
+            --text: #1a1a1a;
+            --danger: #FF5252;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); min-height: 100vh; }
+
+        /* --- HEADER --- */
+        .header-wrapper { position: sticky; top: 0; z-index: 50; background: var(--bg); padding-bottom: 10px; }
+        .top-header {
+            background: linear-gradient(135deg, var(--primary), #3A0CA3);
+            padding: 20px 20px 60px 20px;
+            border-radius: 0 0 25px 25px; color: white;
+            display: flex; align-items: center; gap: 15px;
+        }
+        .back-btn {
+            background: rgba(255,255,255,0.2); width: 40px; height: 40px;
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 20px; transition: 0.2s;
+        }
+        .page-title { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+
+        /* --- SEARCH --- */
+        .search-container { margin: -35px 20px 20px 20px; position: relative; z-index: 51; }
+        .search-box {
+            background: white; width: 100%; padding: 16px 20px 16px 50px;
+            border-radius: 15px; border: none; font-size: 15px;
+            color: var(--text); box-shadow: 0 8px 20px rgba(0,0,0,0.08); outline: none;
+        }
+        .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); font-size: 20px; color: #aaa; }
+
+        /* --- LIST CONTAINER --- */
+        .container { padding: 0 20px 40px 20px; min-height: 60vh; }
+        .section-label { font-size: 12px; font-weight: 700; color: #888; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .video-list { display: flex; flex-direction: column; gap: 15px; }
+
+        .video-card {
+            background: white; border-radius: 16px; overflow: hidden;
+            display: flex; align-items: center; padding: 10px; gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: all 0.2s;
+            cursor: pointer; border: 1px solid transparent;
+        }
+        .video-card:active { transform: scale(0.98); border-color: var(--primary); background: #EEF1FF; }
+
+        .thumb-box {
+            width: 110px; height: 70px; border-radius: 10px;
+            background: #000; position: relative; overflow: hidden; flex-shrink: 0;
+        }
+        .thumb-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; }
+        .play-overlay {
+            position: absolute; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center;
+        }
+        .play-overlay i { color: white; font-size: 24px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+
+        .video-info { flex: 1; overflow: hidden; }
+        .video-title { font-size: 14px; font-weight: 600; color: #333; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .video-meta { margin-top: 6px; font-size: 11px; color: #888; display: flex; align-items: center; gap: 8px; }
+        .video-id-badge { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 10px; }
+
+        /* --- STATUS STATES --- */
+        .status-wrapper { display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 60px 20px; }
+        .status-icon { font-size: 50px; margin-bottom: 15px; color: #ccc; }
+        .status-text { font-size: 16px; font-weight: 700; color: #333; margin-bottom: 5px; }
+        .status-sub { font-size: 13px; color: #999; max-width: 250px; line-height: 1.4; }
+        
+        .error-state .status-icon { color: var(--danger); }
+        .loading-state .spinner { width: 35px; height: 35px; border: 3px solid #eee; border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 15px; }
+        .retry-btn { margin-top: 20px; background: var(--primary); color: white; padding: 12px 28px; border-radius: 50px; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* ========================================= */
+        /* FORCE LANDSCAPE PLAYER STYLES (MAGIC FIX) */
+        /* ========================================= */
+        
+        .overlay-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; z-index: 9999;
+            display: none; overflow: hidden;
+        }
+
+        .video-wrapper {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%; height: 100%;
+            background: black;
+        }
+
+        iframe { width: 100%; height: 100%; border: none; }
+
+        /* CLOSE BUTTON - Always reachable */
+        .close-btn-fixed {
+            position: fixed; 
+            top: 20px; right: 20px;
+            width: 45px; height: 45px; 
+            background: rgba(255,255,255,0.15); backdrop-filter: blur(5px);
+            border-radius: 50%; color: white; 
+            display: flex; justify-content: center; align-items: center;
+            font-size: 24px; cursor: pointer; z-index: 10001;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* --- MOBILE PORTRAIT MODE ONLY --- */
+        /* This rotates the video 90 degrees so it fills the phone screen */
+        @media only screen and (max-width: 768px) and (orientation: portrait) {
+            .video-wrapper {
+                width: 100vh; /* Height becomes width */
+                height: 100vw; /* Width becomes height */
+                transform: translate(-50%, -50%) rotate(90deg);
+            }
+            
+            /* Adjust close button for rotated view perception */
+            .close-btn-fixed {
+                top: 20px; right: 20px; 
+                background: rgba(200, 0, 0, 0.6); /* Red tint to find easily */
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header-wrapper">
+        <div class="top-header">
+            <div class="back-btn" onclick="history.back()"><i class="ph-bold ph-arrow-left"></i></div>
+            <div class="page-title">GEOMETRY LECTURES</div>
+        </div>
+        <div class="search-container">
+            <i class="ph-bold ph-magnifying-glass search-icon"></i>
+            <input type="text" id="searchInput" class="search-box" placeholder="Search Chapter..." onkeyup="filterVideos()">
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        
+        <!-- Loading -->
+        <div id="loadingState" class="status-wrapper loading-state" style="display: flex;">
+            <div class="spinner"></div>
+            <div class="status-text">Please Wait</div>
+            <div class="status-sub">Fetching lectures...</div>
+        </div>
+
+        <!-- Error -->
+        <div id="errorState" class="status-wrapper error-state">
+            <i class="ph-duotone ph-wifi-slash status-icon"></i>
+            <div class="status-text">Network Error</div>
+            <div class="status-sub">Unable to load. Check connection.</div>
+            <button class="retry-btn" onclick="fetchVideos()">Retry</button>
+        </div>
+
+        <!-- Empty -->
+        <div id="emptyState" class="status-wrapper">
+            <i class="ph-duotone ph-cloud-arrow-up status-icon"></i>
+            <div class="status-text">Uploading Soon</div>
+            <div class="status-sub">No videos available yet.</div>
+        </div>
+
+        <!-- List -->
+        <div id="contentArea" style="display: none;">
+            <div class="section-label">Available Videos</div>
+            <div class="video-list" id="videoList"></div>
+        </div>
+        
+    </div>
+
+    <!-- FULL SCREEN PLAYER -->
+    <div class="overlay-container" id="videoOverlay">
+        <div class="video-wrapper">
+            <div id="playerBox" style="width:100%; height:100%;"></div>
+        </div>
+        <div class="close-btn-fixed" onclick="closePlayer()">
+            <i class="ph-bold ph-x"></i>
+        </div>
+    </div>
+
+    <script>
+        // ----------------------------------------------------
+        // PASTE YOUR GOOGLE APPS SCRIPT URL HERE
+        // ----------------------------------------------------
+        const SHEET_API = "https://script.google.com/macros/s/AKfycbycrStJ1tG1V_0tuB7vvi1LJGwQk5zUn4RzqOGWLHuHEW7mCt6smnlERrkfhNw8bssdHQ/exec"; 
+
+        let allVideos = [];
+
+        window.onload = fetchVideos;
+
+        function fetchVideos() {
+            toggleState('loading');
+            fetch(SHEET_API)
+            .then(res => res.json())
+            .then(data => {
+                allVideos = data;
+                if (data.length === 0) { toggleState('empty'); }
+                else { toggleState('content'); renderVideos(data); }
+            })
+            .catch(err => { toggleState('error'); });
+        }
+
+        function getYouTubeID(url) {
+            if(!url) return null;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length == 11) ? match[2] : null;
+        }
+
+        function renderVideos(data) {
+            const list = document.getElementById('videoList');
+            list.innerHTML = "";
+            data.forEach(video => {
+                const vidID = getYouTubeID(video.url);
+                if(vidID) {
+                    const thumb = `https://img.youtube.com/vi/${vidID}/mqdefault.jpg`;
+                    const item = `
+                        <div class="video-card" onclick="playVideo('${vidID}')">
+                            <div class="thumb-box">
+                                <img src="${thumb}" class="thumb-img">
+                                <div class="play-overlay"><i class="ph-fill ph-play-circle"></i></div>
+                            </div>
+                            <div class="video-info">
+                                <div class="video-title">${video.title}</div>
+                                <div class="video-meta">
+                                    <span class="video-id-badge">#${video.id}</span>
+                                    <span><i class="ph-fill ph-youtube-logo" style="color:red"></i> Play</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    list.innerHTML += item;
+                }
+            });
+        }
+
+        function playVideo(id) {
+            const overlay = document.getElementById('videoOverlay');
+            const playerBox = document.getElementById('playerBox');
+            
+            // Using modestbranding and rel=0 for cleaner look
+            // autoplay=1 ensures it starts immediately
+            playerBox.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=0&controls=1&fs=1" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>`;
+            
+            overlay.style.display = 'block'; // Using block for better overlay handling
+        }
+
+        function closePlayer() {
+            const overlay = document.getElementById('videoOverlay');
+            document.getElementById('playerBox').innerHTML = ""; // Stop video
+            overlay.style.display = 'none';
+        }
+
+        function toggleState(state) {
+            ['loadingState', 'errorState', 'emptyState', 'contentArea'].forEach(id => document.getElementById(id).style.display = 'none');
+            if(state === 'loading') document.getElementById('loadingState').style.display = 'flex';
+            if(state === 'error') document.getElementById('errorState').style.display = 'flex';
+            if(state === 'empty') document.getElementById('emptyState').style.display = 'flex';
+            if(state === 'content') document.getElementById('contentArea').style.display = 'block';
+        }
+
+        function filterVideos() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allVideos.filter(v => v.title.toLowerCase().includes(query) || String(v.id).includes(query));
+            renderVideos(filtered);
+        }
+    </script>
+</body>
+</html>

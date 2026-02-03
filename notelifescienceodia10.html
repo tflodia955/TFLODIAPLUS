@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chapter Notes</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #4e54c8; /* Theme Color - Change if needed */
+            --bg: #F5F7FA;
+            --text-dark: #2D3436;
+            --card-bg: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); min-height: 100vh; padding-bottom: 30px; }
+
+        /* Header */
+        .header-bg {
+            background: var(--primary); padding: 20px; color: white; 
+            border-bottom-left-radius: 25px; border-bottom-right-radius: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 50;
+        }
+        .top-row { display: flex; align-items: center; gap: 15px; }
+        .back-btn { font-size: 1.2rem; color: white; text-decoration: none; }
+        .page-title { font-size: 1.3rem; font-weight: 700; flex: 1; }
+
+        /* Search */
+        .search-container { padding: 20px; margin-top: -10px; }
+        .search-box {
+            background: white; border-radius: 12px; padding: 12px 15px; display: flex; align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .search-box input { border: none; outline: none; width: 100%; margin-left: 10px; font-size: 1rem; color: #555; }
+
+        /* List Container */
+        .container { padding: 0 20px; }
+
+        /* Note Card */
+        .note-card {
+            background: var(--card-bg); border-radius: 15px; padding: 15px; margin-bottom: 15px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.03); transition: transform 0.2s;
+            text-decoration: none; color: var(--text-dark);
+            animation: fadeIn 0.4s ease forwards;
+        }
+        .note-card:active { transform: scale(0.97); background: #fafafa; }
+
+        .note-left { display: flex; align-items: center; gap: 15px; overflow: hidden; }
+        
+        .ch-box {
+            background: #E3F2FD; color: var(--primary); font-weight: 700; width: 45px; height: 45px;
+            border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .note-info { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .note-title { font-size: 1rem; font-weight: 600; margin-bottom: 2px; }
+        .note-desc { font-size: 0.75rem; color: #888; }
+
+        .btn-icon { font-size: 1.2rem; color: var(--primary); padding: 10px; }
+
+        /* --- STATE DESIGNS (Error / Empty / Loading) --- */
+        .state-container {
+            display: none; /* Hidden by default */
+            flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding-top: 50px;
+        }
+
+        .state-icon { font-size: 3.5rem; color: #ddd; margin-bottom: 15px; }
+        .state-title { font-size: 1.1rem; font-weight: 600; color: #555; margin-bottom: 5px; }
+        .state-desc { font-size: 0.9rem; color: #999; max-width: 250px; }
+        
+        /* Specific Colors */
+        .error-state .state-icon { color: #ff7675; }
+        .empty-state .state-icon { color: #81ecec; }
+        
+        /* Retry Button */
+        .retry-btn {
+            margin-top: 20px; padding: 10px 25px; background: var(--primary); color: white;
+            border: none; border-radius: 50px; font-weight: 600; cursor: pointer;
+        }
+
+        /* Spinner */
+        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="header-bg">
+        <div class="top-row">
+            <!-- Back Button - History Back -->
+            <a href="javascript:history.back()" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+            <div class="page-title">LIFE SC. NOTES</div>
+        </div>
+    </div>
+
+    <div class="search-container">
+        <div class="search-box">
+            <i class="fas fa-search" style="color:#ccc"></i>
+            <input type="text" id="searchInput" placeholder="Search chapters..." onkeyup="filterNotes()">
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <!-- 1. LOADING STATE -->
+        <div id="loader" class="state-container" style="display: flex;">
+            <div class="spinner"></div>
+            <div class="state-desc" style="margin-top:15px">Loading content...</div>
+        </div>
+
+        <!-- 2. CONTENT LIST -->
+        <div id="notesList"></div>
+
+        <!-- 3. NO CONTENT STATE (Empty Sheet) -->
+        <div id="emptyState" class="state-container empty-state">
+            <i class="fas fa-folder-open state-icon"></i>
+            <div class="state-title">No Notes Found</div>
+            <div class="state-desc">Content hasn't been uploaded for this subject yet.</div>
+        </div>
+
+        <!-- 4. NETWORK ERROR STATE -->
+        <div id="errorState" class="state-container error-state">
+            <i class="fas fa-wifi state-icon"></i>
+            <div class="state-title">Connection Failed</div>
+            <div class="state-desc">Please check your internet connection and try again.</div>
+            <button class="retry-btn" onclick="init()">Retry</button>
+        </div>
+
+    </div>
+
+    <script>
+        // ********************************************
+        // CONFIGURATION (Change this per file)
+        // ********************************************
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyQUamhNXKo9YQGLnovyEZW71wF-1oJX7mlMfoBvL08dk-gRRVkFAT-OViLYaKuUL7-/exec'; 
+        
+        // IMPORTANT: Ye wahi naam hona chahiye jo Google Sheet tab ka naam hai
+        const TARGET_SHEET = 'Sheet1'; 
+        // Example: 'Sci10_Notes', 'Hist9_Notes' etc.
+
+        // ********************************************
+
+        let allNotes = [];
+
+        document.addEventListener('DOMContentLoaded', init);
+
+        function init() {
+            // Show Loader, Hide others
+            toggleState('loader');
+
+            const fetchUrl = `${SCRIPT_URL}?sheet=${TARGET_SHEET}`;
+
+            fetch(fetchUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error("Network response was not ok");
+                    return response.json();
+                })
+                .then(data => {
+                    allNotes = data;
+                    if (data.length === 0) {
+                        toggleState('emptyState');
+                    } else {
+                        renderNotes(data);
+                        toggleState('notesList');
+                    }
+                })
+                .catch(error => {
+                    console.error("Fetch Error:", error);
+                    toggleState('errorState');
+                });
+        }
+
+        function renderNotes(data) {
+            const list = document.getElementById('notesList');
+            list.innerHTML = '';
+
+            data.forEach(note => {
+                const card = document.createElement('a');
+                card.className = 'note-card';
+                card.href = note.url; // PDF Link
+                // Check if link exists
+                if(note.url && note.url.trim() !== "") {
+                    card.target = "_blank"; // Open in new tab
+                } else {
+                    card.href = "javascript:void(0)";
+                    card.onclick = () => alert("Notes uploading soon!");
+                }
+
+                card.innerHTML = `
+                    <div class="note-left">
+                        <div class="ch-box">${note.chapter}</div>
+                        <div class="note-info">
+                            <div class="note-title">${note.title}</div>
+                            <div class="note-desc">Click to view PDF</div>
+                        </div>
+                    </div>
+                    <div class="btn-icon"><i class="fas fa-file-pdf"></i></div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function filterNotes() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allNotes.filter(note => 
+                note.title.toLowerCase().includes(query) || 
+                note.chapter.includes(query)
+            );
+            
+            // If filter results empty, show message (optional, or just empty list)
+            renderNotes(filtered);
+        }
+
+        // Helper to switch between Views
+        function toggleState(activeId) {
+            ['loader', 'notesList', 'emptyState', 'errorState'].forEach(id => {
+                document.getElementById(id).style.display = (id === activeId) ? (id === 'notesList' ? 'block' : 'flex') : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

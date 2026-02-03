@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Notes - Class 9 English</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        :root {
+            --primary: #E814B3; /* English Medium Blue */
+            --bg: #F5F7FA;
+            --text: #1a1a1a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); min-height: 100vh; }
+
+        /* HEADER */
+        .header-wrapper { position: sticky; top: 0; z-index: 100; background: var(--bg); padding-bottom: 10px; }
+        .top-header {
+            background: linear-gradient(135deg, var(--primary), #3A0CA3);
+            padding: 20px; padding-bottom: 60px;
+            border-radius: 0 0 25px 25px; color: white;
+            display: flex; align-items: center; gap: 15px;
+        }
+        .back-btn {
+            background: rgba(255,255,255,0.2); width: 40px; height: 40px;
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 20px; transition: 0.2s;
+        }
+        .back-btn:active { transform: scale(0.9); }
+        .page-title { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+
+        /* SEARCH */
+        .search-container { margin: -35px 20px 20px 20px; position: relative; }
+        .search-box {
+            background: white; width: 100%; padding: 16px 20px 16px 50px;
+            border-radius: 15px; border: none; font-size: 15px;
+            color: var(--text); box-shadow: 0 8px 20px rgba(0,0,0,0.08); outline: none;
+        }
+        .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); font-size: 20px; color: #aaa; }
+
+        /* LIST */
+        .container { padding: 0 20px 40px 20px; }
+        .subject-label { font-size: 13px; font-weight: 600; color: #888; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        .subject-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .subject-card {
+            background: white; padding: 15px; border-radius: 16px;
+            display: flex; align-items: center; text-decoration: none;
+            color: inherit; cursor: pointer; border: 1px solid transparent;
+            transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .subject-card:active { transform: scale(0.98); border-color: var(--primary); }
+
+        .sub-icon {
+            width: 50px; height: 50px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; margin-right: 15px; flex-shrink: 0;
+        }
+        .sub-info { flex: 1; }
+        .sub-name { font-size: 16px; font-weight: 700; color: #333; margin-bottom: 2px; }
+        .sub-desc { font-size: 11px; color: #999; }
+        .arrow-icon { color: #ddd; font-size: 18px; }
+
+        /* Colors */
+        .bg-math { background: #E3F2FD; color: #2196F3; }
+        .bg-sci  { background: #E8F5E9; color: #4CAF50; }
+        .bg-eng  { background: #FFEBEE; color: #FF5252; }
+        .bg-sst  { background: #F3E5F5; color: #9C27B0; }
+        
+        /* DIALOG / MODAL */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1000;
+            display: none; justify-content: center; align-items: center;
+        }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.3s; }
+
+        .modal-box {
+            background: white; width: 85%; max-width: 320px;
+            border-radius: 20px; padding: 30px 20px; text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transform: scale(0.9); transition: transform 0.2s;
+        }
+        .modal-overlay.active .modal-box { transform: scale(1); }
+
+        .modal-icon {
+            width: 60px; height: 60px; background: #EEF1FF; color: #4361EE;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 32px; margin: 0 auto 15px auto;
+        }
+        .modal-title { font-size: 18px; font-weight: 700; color: #333; margin-bottom: 5px; }
+        .modal-text { font-size: 13px; color: #777; line-height: 1.5; margin-bottom: 20px; }
+        
+        .modal-btn {
+            background: var(--primary); color: white; border: none;
+            padding: 12px 30px; border-radius: 50px; font-size: 14px; font-weight: 600;
+            cursor: pointer; width: 100%;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="header-wrapper">
+        <div class="top-header">
+            <div class="back-btn" onclick="history.back()"><i class="ph-bold ph-arrow-left"></i></div>
+            <div class="page-title">Class 9 Notes</div>
+        </div>
+        <div class="search-container">
+            <i class="ph-bold ph-magnifying-glass search-icon"></i>
+            <input type="text" id="searchInput" class="search-box" placeholder="Search Subject..." onkeyup="filterSubjects()">
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="subject-label">Core Subjects</div>
+
+        <div class="subject-list" id="subjectList">
+
+            <!-- 1. Mathematics -->
+            <div class="subject-card" onclick="window.location.href='notematheng9.html'">
+                <div class="sub-icon bg-math"><i class="ph-fill ph-function"></i></div>
+                <div class="sub-info">
+                    <div class="sub-name">Mathematics</div>
+                    <div class="sub-desc">NCERT Notes</div>
+                </div>
+                <i class="ph-bold ph-caret-right arrow-icon"></i>
+            </div>
+
+            <!-- 2. Science -->
+            <div class="subject-card" onclick="window.location.href='notesceng9.html'">
+                <div class="sub-icon bg-sci"><i class="ph-fill ph-atom"></i></div>
+                <div class="sub-info">
+                    <div class="sub-name">Science</div>
+                    <div class="sub-desc">Physics, Chem, Bio</div>
+                </div>
+                <i class="ph-bold ph-caret-right arrow-icon"></i>
+            </div>
+
+            <!-- 3. English -->
+            <div class="subject-card" onclick="openDialog('English')">
+                <div class="sub-icon bg-eng"><i class="ph-fill ph-book-open-text"></i></div>
+                <div class="sub-info">
+                    <div class="sub-name">English</div>
+                    <div class="sub-desc">Literature & Grammar</div>
+                </div>
+                <i class="ph-bold ph-caret-right arrow-icon"></i>
+            </div>
+
+            <!-- 4. Social Science -->
+            <div class="subject-card" onclick="openDialog('Social Science')">
+                <div class="sub-icon bg-sst"><i class="ph-fill ph-globe-hemisphere-east"></i></div>
+                <div class="sub-info">
+                    <div class="sub-name">Social Science</div>
+                    <div class="sub-desc">Hist, Civics, Geo, Eco</div>
+                </div>
+                <i class="ph-bold ph-caret-right arrow-icon"></i>
+            </div>
+
+            <!-- ================= HIDDEN SUBJECTS ================= -->
+            <!-- 
+            <div class="subject-card" onclick="openDialog('Hindi')">
+                <div class="sub-icon" style="background:#ECEFF1; color:#607D8B"><i class="ph-fill ph-chat-text"></i></div>
+                <div class="sub-info">
+                    <div class="sub-name">Hindi</div>
+                    <div class="sub-desc">Notes</div>
+                </div>
+                <i class="ph-bold ph-caret-right arrow-icon"></i>
+            </div>
+            -->
+            <!-- =================================================== -->
+
+        </div>
+    </div>
+
+    <!-- DIALOG -->
+    <div class="modal-overlay" id="workModal">
+        <div class="modal-box">
+            <div class="modal-icon">
+                <i class="ph-fill ph-cloud-arrow-down"></i>
+            </div>
+            <div class="modal-title">Opening Notes...</div>
+            <div class="modal-text">
+                Fetching chapters for <b id="subjectName">Subject</b>. 
+                <br>
+                <span style="font-size:11px; color:#aaa;">(Feature under development)</span>
+            </div>
+            <button class="modal-btn" onclick="closeDialog()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Dialog Logic
+        function openDialog(subject) {
+            document.getElementById('subjectName').innerText = subject;
+            document.getElementById('workModal').classList.add('active');
+        }
+
+        function closeDialog() {
+            document.getElementById('workModal').classList.remove('active');
+        }
+
+        // Close on outside click
+        document.getElementById('workModal').addEventListener('click', function(e) {
+            if (e.target === this) closeDialog();
+        });
+
+        // Search Logic
+        function filterSubjects() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let cards = document.querySelectorAll('.subject-card');
+            
+            cards.forEach(card => {
+                let name = card.querySelector('.sub-name').innerText.toLowerCase();
+                let desc = card.querySelector('.sub-desc').innerText.toLowerCase();
+                
+                if (name.includes(input) || desc.includes(input)) {
+                    card.style.display = "flex";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

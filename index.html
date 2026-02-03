@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TFLODIA Home</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- CSS VARIABLES --- */
+        :root {
+            /* Backgrounds */
+            --bg-body: #f4f7f9;
+            --bg-surface: #ffffff;
+            
+            /* Text */
+            --text-main: #333333;
+            --text-sub: #666666;
+            
+            /* Class Card Gradients (Light Mode) */
+            --grad-10-odia: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            --grad-10-eng:  linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            --grad-9-odia:  linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+            --grad-9-eng:   linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            
+            /* Common UI */
+            --shadow: 0 8px 20px rgba(0,0,0,0.08);
+            --search-bg: #fff;
+        }
+
+        body.dark-mode {
+            /* Dark Mode Backgrounds */
+            --bg-body: #121212;
+            --bg-surface: #1e1e1e;
+            
+            /* Text */
+            --text-main: #f0f0f0;
+            --text-sub: #aaaaaa;
+
+            /* Class Card Gradients (Dark Mode - More Vibrant/Deep) */
+            --grad-10-odia: linear-gradient(135deg, #ff512f, #dd2476); /* Red/Pink */
+            --grad-10-eng:  linear-gradient(135deg, #c471ed, #f64f59); /* Purple/Red */
+            --grad-9-odia:  linear-gradient(135deg, #00c6fb, #005bea); /* Blue */
+            --grad-9-eng:   linear-gradient(135deg, #0ba360, #3cba92); /* Teal/Green */
+            
+            --shadow: 0 10px 25px rgba(0,0,0,0.5);
+            --search-bg: #2d2d2d;
+        }
+
+        /* --- GLOBAL RESETS --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding-bottom: 90px;
+            transition: background 0.3s, color 0.3s;
+            overflow-x: hidden;
+        }
+        a { text-decoration: none; display: block; }
+
+        /* --- HEADER --- */
+        header {
+            background: var(--bg-surface);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        }
+
+        .header-text h1 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #ff9a9e,#ff9a9e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0;
+        }
+        .header-text p { font-size: 0.8rem; color: var(--text-sub); margin-top: -3px; }
+
+        .theme-btn {
+            background: rgba(0,0,0,0.05);
+            border: none;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            font-size: 1.1rem;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        body.dark-mode .theme-btn { background: rgba(255,255,255,0.1); color: #ffd700; }
+
+        /* --- SEARCH BAR --- */
+        .search-wrapper { width: 100%; padding: 15px 20px 5px 20px; }
+        .search-box {
+            position: relative; width: 100%;
+            background: var(--search-bg);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+        }
+        .search-box input {
+            width: 100%; padding: 14px 15px 14px 45px;
+            border-radius: 14px; border: none;
+            background: transparent; color: var(--text-main);
+            outline: none; font-size: 0.95rem;
+        }
+        .search-box i {
+            position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+            color: #4a90e2; font-size: 1.1rem;
+        }
+
+        /* --- SKELETON LOADING --- */
+        .skeleton-wrapper { display: block; padding: 20px; }
+        .sk-banner { width: 100%; aspect-ratio: 16/9; border-radius: 16px; margin-bottom: 30px; }
+        .sk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .sk-card { height: 130px; border-radius: 16px; }
+        .skeleton {
+            background: rgba(150, 150, 150, 0.2);
+            position: relative; overflow: hidden; border-radius: 16px;
+        }
+        .skeleton::after {
+            content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+            transform: translateX(-100%);
+            background-image: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer { 100% { transform: translateX(100%); } }
+        #main-content { display: none; opacity: 0; transition: opacity 0.5s; }
+
+        /* --- BANNER --- */
+        .banner-wrapper {
+            width: 92%; margin: 15px auto 25px auto;
+            position: relative; border-radius: 16px;
+            overflow: hidden; aspect-ratio: 16/9;
+            box-shadow: var(--shadow); touch-action: pan-y;
+        }
+        .slides { display: flex; width: 100%; height: 100%; transition: transform 0.5s ease; }
+        .slide { min-width: 100%; }
+        .slide img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .slider-dots {
+            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 8px;
+        }
+        .dot { width: 8px; height: 8px; background: rgba(255,255,255,0.5); border-radius: 50%; transition: 0.3s; }
+        .dot.active { background: #fff; width: 20px; border-radius: 10px; }
+
+        /* --- SECTIONS --- */
+        .section { width: 92%; margin: 30px auto; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .section-header h2 { font-size: 1.15rem; font-weight: 700; color: var(--text-main); }
+        .section-header a { font-size: 0.85rem; color: #4a90e2; font-weight: 600; }
+
+        /* --- CLASS CARDS (GRADIENT DESIGN) --- */
+        .class-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        .class-card {
+            padding: 20px 15px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s;
+            color: #fff; /* White Text for all gradient cards */
+        }
+        .class-card:active { transform: scale(0.97); }
+
+        /* Glass Decoration inside Card */
+        .class-card::before {
+            content: ''; position: absolute; top: -20px; right: -20px; width: 80px; height: 80px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+        }
+
+        /* Specific Gradients */
+        .bg-10-odia { background: var(--grad-10-odia); }
+        .bg-10-eng  { background: var(--grad-10-eng); }
+        .bg-9-odia  { background: var(--grad-9-odia); }
+        .bg-9-eng   { background: var(--grad-9-eng); color: #333; } /* Light gradient needs dark text in Light Mode */
+        body.dark-mode .bg-9-eng { color: #fff; } /* Switch to white text in dark mode */
+
+        /* Icon Styling */
+        .icon-box {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.25);
+            width: 50px; height: 50px;
+            line-height: 50px;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            color: #fff;
+        }
+        /* Dark text adjustment for that one light card */
+        .bg-9-eng .icon-box { color: #fff; background: rgba(0,0,0,0.1); }
+        body.dark-mode .bg-9-eng .icon-box { background: rgba(255,255,255,0.25); }
+
+        .class-card h3 { font-size: 1.1rem; margin-bottom: 2px; font-weight: 700; }
+        .class-card p { font-size: 0.75rem; opacity: 0.9; font-weight: 500; }
+
+
+        /* --- HORIZONTAL SCROLL --- */
+        .horizontal-scroll {
+            display: flex; overflow-x: auto; gap: 15px; padding: 5px 5px 20px 5px;
+            scroll-snap-type: x mandatory; scrollbar-width: none;
+        }
+        .horizontal-scroll::-webkit-scrollbar { display: none; }
+        
+        .h-card {
+            min-width: 270px;
+            background: var(--bg-surface);
+            border-radius: 18px;
+            padding: 15px;
+            display: flex; align-items: center; gap: 15px;
+            box-shadow: var(--shadow);
+            scroll-snap-align: center;
+        }
+        
+        /* Premium Gradient Borders */
+        .premium .h-card {
+            border: 1px solid transparent;
+            background-image: linear-gradient(var(--bg-surface), var(--bg-surface)), linear-gradient(45deg, #f6d365, #fda085);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+
+        .h-thumb {
+            width: 55px; height: 55px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; color: white; flex-shrink: 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .t-gold { background: linear-gradient(135deg, #f6d365, #fda085); }
+        .t-blue { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .t-purple { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+        .t-gray { background: #e0e0e0; color: #555; }
+        body.dark-mode .t-gray { background: #333; color: #aaa; }
+
+        .h-info h3 { font-size: 1rem; margin-bottom: 4px; font-weight: 600; color: #ff9a9e; }
+        .h-info p { font-size: 0.75rem; color: var(--text-sub); }
+
+/* --- Profile Trigger CSS --- */
+.profile-trigger {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    border: 2px solid #ff9a9e;
+    padding: 2px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: 0.3s;
+}
+.profile-trigger img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.profile-trigger:active { transform: scale(0.9); }
+
+/* Greeting Text Update */
+#user-greeting { font-size: 1.2rem; }
+
+
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-text">
+        <h1 id="user-greeting">Hey, Topper❗</h1>
+        <p id="user-class-display">Let's Learn with TFLODIA</p>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <button class="theme-btn" onclick="toggleTheme()">
+            <i class="fa-solid fa-moon" id="theme-icon"></i>
+        </button>
+        <!-- PROFILE ICON ADDED HERE -->
+        <div class="profile-trigger" onclick="location.href='profile.html'">
+            <img id="nav-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="User">
+        </div>
+    </div>
+</header>
+
+
+    <!-- Search Bar -->
+    <div class="search-wrapper">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" placeholder="Search courses, classes...">
+        </div>
+    </div>
+
+    <!-- Skeleton Loader -->
+    <div class="skeleton-wrapper" id="skeleton-ui">
+        <div class="skeleton sk-banner"></div>
+        <div class="sk-grid">
+            <div class="skeleton sk-card"></div>
+            <div class="skeleton sk-card"></div>
+            <div class="skeleton sk-card"></div>
+            <div class="skeleton sk-card"></div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main-content">
+        
+        <!-- Banner Carousel -->
+        <div class="banner-wrapper" id="banner-area">
+            <div class="slides" id="track">
+                <div class="slide">
+                    <img src="b1.jpg" alt="Banner 1">
+                </div>
+                <div class="slide">
+                    <img src="b2.jpg" alt="Banner 2">
+                </div>
+                <div class="slide">
+                    <img src="b3.jpg" alt="Banner 3">
+                </div>
+            </div>
+            <div class="slider-dots" id="dots-container">
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+
+        <!-- ACADEMIC CLASSES (GRADIENT CARDS) -->
+        <section class="section">
+            <div class="section-header"><h2>Select Class</h2></div>
+            <div class="class-grid">
+                
+                <!-- Class 10 Odia (Red/Pink Gradient) -->
+                <a href="odia10.html" class="class-card bg-10-odia">
+                    <div class="icon-box"><i class="fa-solid fa-book-open"></i></div>
+                    <h3>Class 10</h3>
+                    <p>MEDIUM: ODIA</p>
+                </a>
+                
+                <!-- Class 9 Odia (Blue Gradient) -->
+                <a href="odia9.html" class="class-card bg-9-odia">
+                    <div class="icon-box"><i class="fa-solid fa-school"></i></div>
+                    <h3>Class 9</h3>
+                    <p>MEDIUM: ODIA</p>
+                </a>
+
+                <!-- Class 10 English (Purple Gradient) -->
+                <a href="eng10.html" class="class-card bg-10-eng">
+                    <div class="icon-box"><i class="fa-solid fa-graduation-cap"></i></div>
+                    <h3>Class 10</h3>
+                    <p>MEDIUM: ENGLISH</p>
+                </a>
+
+                <!-- Class 9 English (Green/Teal Gradient) -->
+                <a href="eng9.html" class="class-card bg-9-eng">
+                    <div class="icon-box"><i class="fa-solid fa-chalkboard-user"></i></div>
+                    <h3>Class 9</h3>
+                    <p>MEDIUM: ENGLISH</p>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- PREMIUM COURSES -->
+        <section class="section premium">
+            <div class="section-header"><h2>Premium Courses 💎</h2><a href="#">View All</a></div>
+            <div class="horizontal-scroll">
+                <a href="#" class="h-card">
+                    <div class="h-thumb t-gold"><i class="fa-solid fa-calculator"></i></div>
+                    <div class="h-info"><h3>Math Olympiad</h3><p>Complete tricks.</p></div>
+                </a>
+                <a href="#" class="h-card">
+                    <div class="h-thumb t-blue"><i class="fa-solid fa-flask"></i></div>
+                    <div class="h-info"><h3>Science Pro</h3><p>Visual Learning.</p></div>
+                </a>
+                <a href="#" class="h-card">
+                    <div class="h-thumb t-purple"><i class="fa-solid fa-language"></i></div>
+                    <div class="h-info"><h3>Spoken English</h3><p>Fast track course.</p></div>
+                </a>
+            </div>
+        </section>
+
+        <!-- E-BOOKS LIBRARY -->
+        <section class="section">
+            <div class="section-header"><h2>E-Books Library 📚</h2><a href="#">View All</a></div>
+            <div class="horizontal-scroll">
+                <a href="#" class="h-card">
+                    <div class="h-thumb t-gray"><i class="fa-regular fa-file-pdf"></i></div>
+                    <div class="h-info"><h3>Previous Papers</h3><p>Last 5 years PDF.</p></div>
+                </a>
+                <a href="#" class="h-card">
+                    <div class="h-thumb t-gray"><i class="fa-solid fa-pen-fancy"></i></div>
+                    <div class="h-info"><h3>Topper's Notes</h3><p>Handwritten Set.</p></div>
+                </a>
+                <a href="#" class="h-card">
+                    <div class="h-thumb t-gray"><i class="fa-solid fa-book"></i></div>
+                    <div class="h-info"><h3>Odia Grammar</h3><p>Full Guide.</p></div>
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // --- 1. SKELETON LOADER ---
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(() => {
+                document.getElementById('skeleton-ui').style.display = 'none';
+                const mainContent = document.getElementById('main-content');
+                mainContent.style.display = 'block';
+                setTimeout(() => mainContent.style.opacity = 1, 50);
+            }, 1500);
+        });
+
+        // --- 2. DARK MODE ---
+        const themeIcon = document.getElementById('theme-icon');
+        const body = document.body;
+
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    body.classList.add('dark-mode');
+                    if(themeIcon) themeIcon.classList.replace('fa-moon', 'fa-sun');
+                }
+            } catch (e) { console.log("Storage disabled"); }
+        })();
+
+        function toggleTheme() {
+            body.classList.toggle('dark-mode');
+            let theme = 'light';
+            if (body.classList.contains('dark-mode')) {
+                theme = 'dark';
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                themeIcon.classList.replace('fa-sun', 'fa-moon');
+            }
+            try { localStorage.setItem('theme', theme); } catch(e) {}
+        }
+
+        // --- 3. BANNER SLIDER ---
+        let slideIndex = 0;
+        const track = document.getElementById('track');
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+        const bannerArea = document.getElementById('banner-area');
+
+        function updateSlider() {
+            track.style.transform = `translateX(-${slideIndex * 100}%)`;
+            dots.forEach(d => d.classList.remove('active'));
+            if(dots[slideIndex]) dots[slideIndex].classList.add('active');
+        }
+
+        function moveSlide(n) {
+            slideIndex += n;
+            if (slideIndex >= slides.length) slideIndex = 0;
+            if (slideIndex < 0) slideIndex = slides.length - 1;
+            updateSlider();
+            resetTimer();
+        }
+
+        let autoSlide = setInterval(() => moveSlide(1), 3500);
+
+        function resetTimer() {
+            clearInterval(autoSlide);
+            autoSlide = setInterval(() => moveSlide(1), 3500);
+        }
+
+        // Touch Swipe
+        let touchStartX = 0;
+        let touchEndX = 0;
+        bannerArea.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+        bannerArea.addEventListener('touchend', e => { 
+            touchEndX = e.changedTouches[0].screenX; 
+            if (touchEndX < touchStartX - 50) moveSlide(1);
+            if (touchEndX > touchStartX + 50) moveSlide(-1);
+        }, {passive: true});
+    </script>
+</body>
+</html>

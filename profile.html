@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Profile | TFLODIA</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #f1f5f9;
+            --danger: #ef4444;
+        }
+
+        body.dark-mode {
+            --bg: #0f172a; --surface: #1e293b; --text-main: #f1f5f9; --text-muted: #94a3b8; --border: #334155;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { background-color: var(--bg); color: var(--text-main); transition: 0.3s; padding-bottom: 40px; }
+
+        /* --- HEADER --- */
+        header {
+            background: var(--surface);
+            padding: 18px 20px;
+            display: flex; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+            border-bottom: 1px solid var(--border);
+        }
+        header i { font-size: 1.2rem; cursor: pointer; color: var(--text-main); }
+        header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; text-align: center; margin-right: 25px; color: var(--primary); }
+
+        /* --- PROFILE HERO --- */
+        .profile-hero {
+            background: var(--surface);
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        }
+        .avatar-box {
+            width: 110px; height: 110px;
+            margin: 0 auto 15px;
+            border-radius: 50%;
+            padding: 4px;
+            background: linear-gradient(135deg, #ff9a9e, var(--primary));
+            position: relative;
+        }
+        .avatar-box img {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            border: 4px solid var(--surface);
+            object-fit: cover;
+        }
+        .v-badge {
+            position: absolute; bottom: 5px; right: 5px;
+            background: #10b981; color: white;
+            width: 26px; height: 26px;
+            border-radius: 50%; border: 3px solid var(--surface);
+            display: flex; align-items: center; justify-content: center; font-size: 12px;
+        }
+        .profile-hero h2 { font-size: 1.4rem; font-weight: 800; }
+        .profile-hero p { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
+
+        /* --- INFO LIST --- */
+        .info-section { padding: 25px 20px; }
+        .info-label { font-size: 0.75rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; margin-left: 5px; }
+        
+        .info-card {
+            background: var(--surface);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .info-item {
+            display: flex; align-items: center;
+            padding: 16px 20px;
+            gap: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        .info-item:last-child { border-bottom: none; }
+        .info-icon {
+            width: 42px; height: 42px;
+            background: var(--bg);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--primary); font-size: 1.1rem;
+        }
+        .info-text small { display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+        .info-text span { font-size: 0.95rem; font-weight: 700; }
+
+        /* --- LOGOUT BUTTON --- */
+        .logout-btn {
+            margin: 10px 20px;
+            padding: 18px;
+            background: #fff1f2;
+            color: var(--danger);
+            border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            gap: 12px; font-weight: 800; cursor: pointer;
+            border: 1.5px solid #ffe4e6;
+        }
+        body.dark-mode .logout-btn { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); }
+
+        /* --- CUSTOM DIALOG MODAL --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.7);
+            display: none; justify-content: center; align-items: center;
+            z-index: 1000; backdrop-filter: blur(5px);
+        }
+        .modal-box {
+            background: var(--surface);
+            width: 85%; max-width: 320px;
+            padding: 30px 25px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes modalIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .modal-box i { font-size: 50px; color: var(--danger); margin-bottom: 15px; }
+        .modal-box h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 10px; }
+        .modal-box p { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; }
+        
+        .modal-btns { display: flex; gap: 12px; }
+        .m-btn {
+            flex: 1; padding: 14px; border-radius: 14px; font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer;
+        }
+        .m-btn-cancel { background: var(--bg); color: var(--text-main); }
+        .m-btn-confirm { background: var(--danger); color: white; }
+
+        .app-version { text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 30px; font-weight: 700; }
+    </style>
+</head>
+<body>
+
+    <!-- Custom Dialog Modal -->
+    <div id="logoutModal" class="modal-overlay">
+        <div class="modal-box">
+            <i class="fas fa-right-from-bracket"></i>
+            <h3>Sign Out?</h3>
+            <p>Are you sure you want to logout from your TFLODIA account?</p>
+            <div class="modal-btns">
+                <button class="m-btn m-btn-cancel" onclick="closeDialog()">Cancel</button>
+                <button class="m-btn m-btn-confirm" onclick="confirmLogout()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <i class="fas fa-arrow-left" onclick="history.back()"></i>
+        <h1>MY PROFILE</h1>
+    </header>
+
+    <section class="profile-hero">
+        <div class="avatar-box">
+            <img id="p-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+            <div class="v-badge"><i class="fas fa-check"></i></div>
+        </div>
+        <h2 id="u-name">Student Name</h2>
+        <p id="u-badge">VERIFIED STUDENT • TFLODIA</p>
+    </section>
+
+    <div class="info-section">
+        <p class="info-label">Student Details</p>
+        <div class="info-card">
+            <div class="info-item">
+                <div class="info-icon"><i class="fas fa-user"></i></div>
+                <div class="info-text">
+                    <small>Full Name</small>
+                    <span id="d-name">---</span>
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon"><i class="fas fa-envelope"></i></div>
+                <div class="info-text">
+                    <small>Email Address</small>
+                    <span id="d-email">---</span>
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon"><i class="fas fa-phone"></i></div>
+                <div class="info-text">
+                    <small>Phone Number</small>
+                    <span id="d-phone">---</span>
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div class="info-text">
+                    <small>Current Class</small>
+                    <span id="d-class">---</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="logout-btn" onclick="openDialog()">
+        <i class="fas fa-power-off"></i>
+        <span>Logout from TFLODIA</span>
+    </div>
+
+    <p class="app-version">TFLODIA v1.0.5 • Powered by TFLODIA Team</p>
+
+    <script>
+        // Load data on page start
+        document.addEventListener("DOMContentLoaded", () => {
+            // Apply Theme
+            if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+
+            // Load Real Data
+            const name = localStorage.getItem("name") || "Topper Student";
+            const email = localStorage.getItem("email") || "Not Provided";
+            const phone = localStorage.getItem("phone") || "Not Provided";
+            const sClass = localStorage.getItem("class") || "Not Set";
+
+            // Update UI
+            document.getElementById('u-name').innerText = name;
+            document.getElementById('d-name').innerText = name;
+            document.getElementById('d-email').innerText = email;
+            document.getElementById('d-phone').innerText = phone;
+            document.getElementById('d-class').innerText = "Class " + sClass;
+        });
+
+        // Custom Dialog Logic
+        function openDialog() {
+            document.getElementById('logoutModal').style.display = 'flex';
+        }
+
+        function closeDialog() {
+            document.getElementById('logoutModal').style.display = 'none';
+        }
+
+        function confirmLogout() {
+            // Android Bridge ko call karein
+            if (window.Android) {
+                window.Android.logoutUser();
+            } else {
+                // Testing on browser
+                localStorage.clear();
+                window.location.href = "index.html";
+            }
+        }
+    </script>
+</body>
+</html>

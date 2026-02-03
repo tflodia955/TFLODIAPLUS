@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Premium Content Hub</title>
+    <!-- FontAwesome 6 Pro (Free CDN) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans for a modern tech feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #6366f1; /* Indigo */
+            --primary-light: #e0e7ff;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text-dark: #1e293b;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+            --radius: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); color: var(--text-dark); padding-bottom: 40px; }
+
+        /* --- Layout --- */
+        .container { max-width: 600px; margin: 0 auto; padding: 0 15px; }
+
+        /* --- Sticky Search Header --- */
+        .header-wrapper {
+            position: sticky; top: 0; z-index: 50;
+            background: rgba(248, 250, 252, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px 0 10px 0;
+            border-bottom: 1px solid transparent;
+        }
+        
+        .search-box {
+            position: relative;
+            background: var(--surface);
+            border-radius: 50px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        .search-box:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+        .search-box i {
+            position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+            color: var(--primary); font-size: 1.1rem;
+        }
+        .search-box input {
+            width: 100%; padding: 14px 20px 14px 50px;
+            border: none; outline: none; background: transparent;
+            font-size: 1rem; color: var(--text-dark); border-radius: 50px;
+        }
+
+        /* --- Categories (Chips) --- */
+        .category-scroll {
+            display: flex; gap: 10px; overflow-x: auto; padding: 5px 0 15px 0;
+            scrollbar-width: none;
+        }
+        .category-scroll::-webkit-scrollbar { display: none; }
+        
+        .cat-chip {
+            white-space: nowrap; padding: 8px 18px; border-radius: 50px;
+            background: var(--surface); color: var(--text-gray); 
+            border: 1px solid var(--border);
+            font-size: 0.9rem; font-weight: 600; cursor: pointer; 
+            display: flex; align-items: center; gap: 8px;
+            transition: all 0.2s ease;
+        }
+        .cat-chip i { font-size: 0.8rem; opacity: 0.7; }
+        .cat-chip:active { transform: scale(0.95); }
+        .cat-chip.active {
+            background: var(--primary); color: white; border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+        }
+        .cat-chip.active i { opacity: 1; }
+
+        /* --- Content Cards --- */
+        .content-list { display: flex; flex-direction: column; gap: 16px; }
+
+        .card {
+            background: var(--surface); border-radius: var(--radius); padding: 16px;
+            display: flex; gap: 15px; text-decoration: none; color: inherit;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: all 0.2s ease;
+            position: relative; overflow: hidden;
+        }
+        .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); border-color: #cbd5e1; }
+
+        /* Card Left (Text) */
+        .card-body { flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+        
+        .card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+        
+        /* Badges */
+        .badge-new {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white; padding: 3px 8px; border-radius: 6px;
+            font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; gap: 4px;
+            box-shadow: 0 2px 5px rgba(255, 75, 43, 0.3);
+        }
+        
+        .card-title {
+            font-size: 1.05rem; font-weight: 700; color: var(--text-dark);
+            line-height: 1.4; margin-bottom: 8px;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+
+        .card-meta {
+            display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.8rem; color: var(--text-gray); align-items: center;
+        }
+        .meta-item { display: flex; align-items: center; gap: 5px; }
+        .meta-item i { color: var(--primary); font-size: 0.9rem; }
+        
+        .tag-list { color: var(--primary); font-weight: 500; }
+
+        /* Card Right (Image) */
+        .card-media { flex-shrink: 0; position: relative; }
+        .card-img {
+            width: 85px; height: 85px; object-fit: cover; border-radius: 12px;
+            background: #f1f5f9; border: 1px solid var(--border);
+        }
+        .avatar {
+            width: 85px; height: 85px; border-radius: 12px;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* External Link Icon */
+        .link-icon {
+            position: absolute; top: 16px; right: 16px;
+            color: var(--text-gray); opacity: 0.3; font-size: 0.9rem;
+        }
+
+        /* --- Skeleton Loading --- */
+        .skeleton { background: #e2e8f0; border-radius: 4px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+        
+        .sk-card { 
+            height: 120px; border-radius: var(--radius); width: 100%; 
+            background: var(--surface); border: 1px solid var(--border);
+            display: flex; padding: 16px; gap: 15px;
+        }
+        .sk-img { width: 85px; height: 85px; background: #f1f5f9; border-radius: 12px; }
+        .sk-body { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+        .sk-line { height: 12px; background: #f1f5f9; border-radius: 4px; width: 80%; }
+        .sk-line.short { width: 40%; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Header -->
+    <div class="header-wrapper">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="Search content, tags...">
+        </div>
+        
+        <!-- Categories -->
+        <div class="category-scroll" id="categoryContainer">
+            <!-- Injected via JS -->
+        </div>
+    </div>
+
+    <!-- Content List -->
+    <div class="content-list" id="contentContainer">
+        <!-- Loading State -->
+        <div class="sk-card"><div class="sk-body"><div class="sk-line"></div><div class="sk-line short"></div></div><div class="sk-img"></div></div>
+        <div class="sk-card"><div class="sk-body"><div class="sk-line"></div><div class="sk-line short"></div></div><div class="sk-img"></div></div>
+        <div class="sk-card"><div class="sk-body"><div class="sk-line"></div><div class="sk-line short"></div></div><div class="sk-img"></div></div>
+    </div>
+
+</div>
+
+<script>
+    // -----------------------------------------------------
+    // CONFIGURATION
+    // -----------------------------------------------------
+    const API_URL = 'https://script.google.com/macros/s/AKfycbynMUq8a3LbASEUMkFtvWjm9AN-LZSiQo0rNVoJccc6MhZDcvlCk8IZLUsN3y83WtHteQ/exec'; // <--- PASTE YOUR URL HERE
+    
+    // Icon Mapping Helper (Guesses icon based on category name)
+    const getCategoryIcon = (catName) => {
+        const name = catName.toLowerCase();
+        if (name.includes('video') || name.includes('movie')) return 'fa-circle-play';
+        if (name.includes('music') || name.includes('audio')) return 'fa-music';
+        if (name.includes('code') || name.includes('dev')) return 'fa-code';
+        if (name.includes('design') || name.includes('art')) return 'fa-pen-nib';
+        if (name.includes('book') || name.includes('read')) return 'fa-book-open';
+        if (name.includes('tool')) return 'fa-screwdriver-wrench';
+        if (name.includes('news')) return 'fa-newspaper';
+        return 'fa-layer-group'; // Default icon
+    };
+
+    // -----------------------------------------------------
+    // LOGIC
+    // -----------------------------------------------------
+    let allData = [];
+    let currentCategory = 'All';
+
+    const contentContainer = document.getElementById('contentContainer');
+    const categoryContainer = document.getElementById('categoryContainer');
+    const searchInput = document.getElementById('searchInput');
+
+    async function fetchData() {
+        try {
+            const response = await fetch(API_URL);
+            const data = await response.json();
+            
+            // 1. Newest first
+            let processedData = data.reverse();
+
+            // 2. Priority to "New = TRUE"
+            processedData.sort((a, b) => (b.new === true) - (a.new === true));
+
+            allData = processedData;
+            initCategories();
+            renderContent(allData);
+        } catch (error) {
+            console.error(error);
+            contentContainer.innerHTML = `
+                <div style="text-align:center; padding: 20px; color: #ef4444;">
+                    <i class="fa-solid fa-triangle-exclamation fa-2x"></i><br><br>
+                    Failed to load content. Check your Script URL.
+                </div>`;
+        }
+    }
+
+    function initCategories() {
+        const categories = ['All', ...new Set(allData.map(item => item.category).filter(Boolean))];
+        
+        categoryContainer.innerHTML = categories.map(cat => {
+            const iconClass = cat === 'All' ? 'fa-border-all' : getCategoryIcon(cat);
+            return `
+            <div class="cat-chip ${cat === 'All' ? 'active' : ''}" onclick="filterCategory('${cat}', this)">
+                <i class="fa-solid ${iconClass}"></i> ${cat}
+            </div>`;
+        }).join('');
+    }
+
+    window.filterCategory = function(category, element) {
+        currentCategory = category;
+        document.querySelectorAll('.cat-chip').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+        filterData();
+    }
+
+    searchInput.addEventListener('input', filterData);
+
+    function filterData() {
+        const query = searchInput.value.toLowerCase();
+        const filtered = allData.filter(item => {
+            const matchCat = currentCategory === 'All' || item.category === currentCategory;
+            const matchSearch = (item.title && item.title.toLowerCase().includes(query)) ||
+                                (item.tags && item.tags.toLowerCase().includes(query)) ||
+                                (item.category && item.category.toLowerCase().includes(query));
+            return matchCat && matchSearch;
+        });
+        renderContent(filtered);
+    }
+
+    function renderContent(data) {
+        if (data.length === 0) {
+            contentContainer.innerHTML = `
+                <div style="text-align:center; padding:40px; color:#94a3b8;">
+                    <i class="fa-solid fa-ghost fa-3x" style="margin-bottom:10px; opacity:0.5;"></i>
+                    <p>No content found</p>
+                </div>`;
+            return;
+        }
+
+        contentContainer.innerHTML = data.map(item => {
+            // New Badge
+            const newBadge = item.new === true 
+                ? `<div class="badge-new"><i class="fa-solid fa-fire"></i> NEW</div>` 
+                : '';
+
+            // Tag Logic (Get first tag)
+            const firstTag = item.tags ? item.tags.split(',')[0] : '';
+            const tagHtml = firstTag 
+                ? `<div class="meta-item"><i class="fa-solid fa-hashtag"></i> <span class="tag-list">${firstTag}</span></div>` 
+                : '';
+
+            // Image vs Avatar
+            let imageHtml;
+            if (item.image && item.image.trim() !== '') {
+                imageHtml = `<img src="${item.image}" alt="img" class="card-img" onerror="this.style.display='none'">`;
+            } else {
+                const letter = item.title ? item.title.charAt(0) : '?';
+                imageHtml = `<div class="avatar">${letter}</div>`;
+            }
+
+            // Category Icon
+            const catIcon = getCategoryIcon(item.category || '');
+
+            return `
+                <a href="${item.link}" target="_blank" class="card">
+                    <div class="card-body">
+                        <div class="card-header">
+                            ${newBadge}
+                            <div class="meta-item" style="font-size:0.75rem; font-weight:600; color:#64748b;">
+                                <i class="fa-solid ${catIcon}" style="color:#94a3b8;"></i> ${item.category}
+                            </div>
+                        </div>
+                        <div class="card-title">${item.title}</div>
+                        <div class="card-meta">
+                            ${tagHtml}
+                        </div>
+                    </div>
+                    <div class="card-media">
+                        ${imageHtml}
+                    </div>
+                    <!-- Subtle arrow icon for UX -->
+                    <i class="fa-solid fa-angle-right link-icon"></i>
+                </a>
+            `;
+        }).join('');
+    }
+
+    fetchData();
+</script>
+
+</body>
+</html>

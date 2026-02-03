@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Test Series</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: red; /* Test Theme Color (Purple) */
+            --bg: #F5F7FA;
+            --text-dark: #2D3436;
+            --success: #00b894;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); min-height: 100vh; padding-bottom: 30px; }
+
+        /* Header */
+        .header-bg {
+            background: var(--primary); padding: 20px; color: white;
+            border-bottom-left-radius: 25px; border-bottom-right-radius: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 50;
+        }
+        .top-row { display: flex; align-items: center; justify-content: space-between; }
+        .back-btn { font-size: 1.2rem; color: white; text-decoration: none; }
+        .page-title { font-size: 1.3rem; font-weight: 700; }
+
+        /* Search */
+        .search-container { padding: 20px; margin-top: -10px; }
+        .search-box {
+            background: white; border-radius: 12px; padding: 12px 15px; display: flex; align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .search-box input { border: none; outline: none; width: 100%; margin-left: 10px; font-size: 1rem; color: #555; }
+
+        /* Container */
+        .container { padding: 0 20px; }
+
+        /* Test Card */
+        .test-card {
+            background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04); border-left: 5px solid var(--primary);
+            transition: transform 0.2s; animation: fadeIn 0.4s ease forwards;
+        }
+        .test-card:active { transform: scale(0.98); }
+
+        .card-top { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .subject-tag { background: #EEF1FF; color: var(--primary); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .status-badge { font-size: 0.75rem; font-weight: 600; color: #999; }
+        .status-attempted { color: var(--success); }
+
+        .test-title { font-size: 1.1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 15px; line-height: 1.4; }
+
+        /* Buttons */
+        .action-btn {
+            width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer;
+            font-size: 0.95rem; display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        .btn-start { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(108, 99, 255, 0.2); }
+        .btn-reattempt { background: white; border: 1.5px solid var(--primary); color: var(--primary); }
+
+        /* --- STATES (Loading, Error, Empty) --- */
+        .state-container {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding-top: 60px;
+        }
+        .state-icon { font-size: 3.5rem; color: #ddd; margin-bottom: 15px; }
+        .state-title { font-size: 1.1rem; font-weight: 600; color: #555; margin-bottom: 5px; }
+        .state-desc { font-size: 0.9rem; color: #999; max-width: 250px; }
+        
+        /* Colors for states */
+        .error-state .state-icon { color: #ff7675; } /* Red for error */
+        .empty-state .state-icon { color: #74b9ff; } /* Blue for empty */
+
+        .retry-btn { margin-top: 20px; padding: 10px 25px; background: var(--primary); color: white; border: none; border-radius: 50px; font-weight: 600; cursor: pointer; }
+
+        /* Spinner */
+        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="header-bg">
+        <div class="top-row">
+            <!-- Go Back Logic -->
+            <a href="javascript:history.back()" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+            <div class="page-title">Test Series</div>
+            <!-- Manual Refresh Button -->
+            <div class="back-btn" onclick="init()" style="cursor:pointer;"><i class="fas fa-sync-alt"></i></div>
+        </div>
+    </div>
+
+    <div class="search-container">
+        <div class="search-box">
+            <i class="fas fa-search" style="color:#ccc"></i>
+            <input type="text" id="searchInput" placeholder="Search test name..." onkeyup="filterTests()">
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <!-- 1. LOADING -->
+        <div id="loader" class="state-container" style="display: flex;">
+            <div class="spinner"></div>
+            <div class="state-desc" style="margin-top:15px">Fetching tests...</div>
+        </div>
+
+        <!-- 2. DATA LIST -->
+        <div id="testList"></div>
+
+        <!-- 3. EMPTY STATE -->
+        <div id="emptyState" class="state-container empty-state">
+            <i class="fas fa-clipboard-check state-icon"></i>
+            <div class="state-title">No Tests Available</div>
+            <div class="state-desc">Tests are being prepared. Please check back later.</div>
+        </div>
+
+        <!-- 4. ERROR STATE -->
+        <div id="errorState" class="state-container error-state">
+            <i class="fas fa-wifi state-icon"></i>
+            <div class="state-title">Network Error</div>
+            <div class="state-desc">Unable to connect to server. Check your internet connection.</div>
+            <button class="retry-btn" onclick="init()">Try Again</button>
+        </div>
+
+    </div>
+
+    <script>
+        // ********************************************
+        // CONFIGURATION (Change per file)
+        // ********************************************
+        
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxEuSuO8wwI_H7v4bp3G8RF10WH2sWUkTjos7L2WFO-w1A-ufOrHHQK9qHC4Ilf1NtkaA/exec';
+        
+        // 1. Sheet ka naam yahan likhein (e.g., Math10_Test, Sci9_Test)
+        const TARGET_SHEET = 'Sheet1'; 
+
+        // 2. Unique Key for Local Storage (Taaki Math aur Science mix na ho)
+        //    Isse hum track karenge ki user ne kaunsa test attempt kiya
+        const STORAGE_KEY = 'eng10' + TARGET_SHEET;
+
+        // ********************************************
+
+        let allTests = [];
+
+        document.addEventListener('DOMContentLoaded', init);
+
+        function init() {
+            toggleState('loader'); // Show loader
+
+            // Backend ko sheet name bhej rahe hain
+            const fetchUrl = `${SCRIPT_URL}?sheet=${TARGET_SHEET}`;
+
+            fetch(fetchUrl)
+                .then(res => {
+                    if(!res.ok) throw new Error("Network Error");
+                    return res.json();
+                })
+                .then(data => {
+                    allTests = data;
+                    if (data.length === 0) {
+                        toggleState('emptyState'); // Sheet empty hai
+                    } else {
+                        renderTests(data);
+                        toggleState('testList'); // Data dikhao
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    toggleState('errorState'); // Internet error
+                });
+        }
+
+        function renderTests(data) {
+            const list = document.getElementById('testList');
+            list.innerHTML = '';
+            
+            // Local Storage se check karo ki kya pehle attempt kiya hai
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+
+            data.forEach(test => {
+                const card = document.createElement('div');
+                card.className = 'test-card';
+                
+                const isAttempted = history[test.id] ? true : false;
+                
+                let btnHTML, badgeHTML;
+
+                if(isAttempted) {
+                    // Agar attempt kiya hai -> Reattempt Button
+                    btnHTML = `<button class="action-btn btn-reattempt" onclick="startTest('${test.id}', '${test.url}')">Reattempt Test <i class="fas fa-redo"></i></button>`;
+                    badgeHTML = '<span class="status-badge status-attempted"><i class="fas fa-check-circle"></i> Done</span>';
+                } else {
+                    // Agar naya hai -> Start Button
+                    btnHTML = `<button class="action-btn btn-start" onclick="startTest('${test.id}', '${test.url}')">Start Test <i class="fas fa-play"></i></button>`;
+                    badgeHTML = '<span class="status-badge">New</span>';
+                }
+
+                card.innerHTML = `
+                    <div class="card-top">
+                        <span class="subject-tag">${test.subject}</span>
+                        ${badgeHTML}
+                    </div>
+                    <h3 class="test-title">${test.title}</h3>
+                    ${btnHTML}
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function startTest(id, url) {
+            if(!url || !url.startsWith('http')) {
+                alert("Link is not valid yet."); return;
+            }
+
+            // Save in Browser Memory that user clicked this test
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+            history[id] = true;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+
+            // Open Link
+            window.open(url, '_blank');
+
+            // List refresh karo taaki button change ho jaye (New -> Done)
+            setTimeout(() => renderTests(allTests), 1000);
+        }
+
+        function filterTests() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allTests.filter(test => 
+                test.title.toLowerCase().includes(query) || 
+                test.subject.toLowerCase().includes(query)
+            );
+            renderTests(filtered);
+        }
+
+        // Helper function to show only one section at a time
+        function toggleState(activeId) {
+            ['loader', 'testList', 'emptyState', 'errorState'].forEach(id => {
+                document.getElementById(id).style.display = (id === activeId) ? (id === 'testList' ? 'block' : 'flex') : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

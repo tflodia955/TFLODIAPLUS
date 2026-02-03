@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Class 9 - English Medium</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        :root {
+            --primary: #E814B3; /* Royal Blue Theme */
+            --primary-light: #EEF1FF;
+            --bg: #F5F7FA;
+            --text: #1a1a1a;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); min-height: 100vh; padding-bottom: 40px; }
+
+        /* HEADER */
+        .header-container {
+            background: linear-gradient(135deg, var(--primary), #3A0CA3);
+            padding: 30px 20px 50px 20px;
+            border-radius: 0 0 30px 30px;
+            color: white;
+        }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .brand { font-weight: 800; font-size: 20px; letter-spacing: 1px; }
+        .settings-btn { background: rgba(255,255,255,0.2); padding: 8px; border-radius: 50%; cursor: pointer; }
+        
+        .welcome-text h1 { font-size: 24px; font-weight: 800; margin-bottom: 5px; }
+        .welcome-text p { font-size: 14px; opacity: 0.9; }
+
+        /* STATUS CARD */
+        .status-card {
+            background: white; margin: -30px 20px 25px 20px; padding: 20px; border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; border: 1px solid white; transition: transform 0.2s;
+        }
+        .status-card:active { transform: scale(0.98); }
+        .status-info h3 { font-size: 18px; color: var(--text); font-weight: 800; }
+        
+        .badge-row { display: flex; gap: 8px; margin-top: 5px; }
+        .badge { font-size: 11px; color: var(--primary); background: var(--primary-light); padding: 4px 8px; border-radius: 6px; font-weight: 600; }
+
+        .edit-icon { color: var(--primary); font-size: 22px; }
+
+        /* GRID */
+        .resource-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 20px; }
+        
+        .card {
+            background: white; padding: 20px; border-radius: 20px; text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; text-decoration: none; color: inherit;
+            transition: all 0.2s;
+        }
+        .card:active { transform: scale(0.96); border-color: var(--primary); }
+        
+        .card-icon {
+            width: 52px; height: 52px; border-radius: 16px; margin: 0 auto 12px auto;
+            display: flex; align-items: center; justify-content: center; font-size: 26px;
+        }
+        .card h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+        .card p { font-size: 11px; color: #999; }
+
+        /* Colors */
+        .c-blue { background: #E3F2FD; color: #2196F3; }
+        .c-red { background: #FFEBEE; color: #FF5252; }
+        .c-purple { background: #F3E5F5; color: #9C27B0; }
+        .c-orange { background: #FFF3E0; color: #FF9800; }
+        .c-green { background: #E8F5E9; color: #4CAF50; }
+        
+        .card-full { grid-column: 1 / -1; display: flex; align-items: center; padding: 15px 25px; text-align: left;}
+        .card-full .card-icon { margin: 0 20px 0 0; width: 45px; height: 45px; font-size: 22px; }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 100;
+            display: none; justify-content: center; align-items: center;
+        }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.2s; }
+        .modal-box { background: white; width: 90%; max-width: 360px; border-radius: 25px; padding: 25px; text-align: center; }
+        
+        .label { font-size: 12px; font-weight: 700; color: #aaa; margin-bottom: 10px; display: block; text-align: left; margin-top: 20px; }
+        
+        .radio-group { display: flex; gap: 12px; }
+        .radio-btn {
+            flex: 1; padding: 14px; border: 2px solid #eee; border-radius: 12px;
+            text-align: center; font-weight: 600; color: #aaa; cursor: pointer; transition: 0.2s; font-size: 14px;
+        }
+        .radio-btn.selected { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+        
+        .save-btn {
+            width: 100%; background: var(--primary); color: white; padding: 16px; margin-top: 25px;
+            border-radius: 15px; font-size: 16px; font-weight: 700; border: none; cursor: pointer;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <div class="top-bar">
+            <div class="brand">TFLODIA</div>
+            <div class="settings-btn" onclick="openModal()"><i class="ph ph-gear" style="font-size: 24px;"></i></div>
+        </div>
+        <div class="welcome-text">
+            <h1>Hello, Student! 👋</h1>
+            <p>Class 9 Study Material</p>
+        </div>
+    </div>
+
+    <!-- STATUS CARD -->
+    <div class="status-card" onclick="openModal()">
+        <div class="status-info">
+            <h3>Class 9</h3>
+            <div class="badge-row">
+                <div class="badge">English Medium</div>
+                <div class="badge">High School</div>
+            </div>
+        </div>
+        <div class="edit-icon"><i class="ph-bold ph-pencil-simple"></i></div>
+    </div>
+
+    <!-- GRID -->
+    <div class="resource-grid">
+        <a href="noteeng9.html" class="card">
+            <div class="card-icon c-blue"><i class="ph-fill ph-notebook"></i></div>
+            <h4>All Notes</h4>
+            <p>Subject Wise</p>
+        </a>
+        <a href="leceng9.html" class="card">
+            <div class="card-icon c-red"><i class="ph-fill ph-youtube-logo"></i></div>
+            <h4>Video Class</h4>
+            <p>Lectures</p>
+        </a>
+        <a href="testeng9.html" class="card">
+            <div class="card-icon c-purple"><i class="ph-fill ph-check-circle"></i></div>
+            <h4>Online Test</h4>
+            <p>Topic Wise</p>
+        </a>
+        <a href="bookeng9.html" class="card">
+            <div class="card-icon c-orange"><i class="ph-fill ph-book-open"></i></div>
+            <h4>Text Books</h4>
+            <p>PDF Books</p>
+        </a>
+        <a href="syllabuseng9.html" class="card card-full">
+            <div class="card-icon c-green"><i class="ph-fill ph-list-checks"></i></div>
+            <div>
+                <h4>Syllabus</h4>
+                <p>New Academic Year</p>
+            </div>
+            <i class="ph-bold ph-caret-right" style="color:#ddd; margin-left:auto;"></i>
+        </a>
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal-box">
+            <h3 style="font-size: 18px; margin-bottom: 5px;">Preferences</h3>
+            <p style="color:#888; font-size:12px;">Change Class or Medium</p>
+
+            <!-- Class Selection -->
+            <span class="label">SELECT CLASS</span>
+            <div class="radio-group">
+                <div class="radio-btn selected" id="cls9" onclick="setOption('cls', 9)">Class 9</div>
+                <div class="radio-btn" id="cls10" onclick="setOption('cls', 10)">Class 10</div>
+            </div>
+
+            <!-- Medium Selection -->
+            <span class="label">SELECT MEDIUM</span>
+            <div class="radio-group">
+                <div class="radio-btn" id="medOdia" onclick="setOption('med', 'odia')">Odia</div>
+                <div class="radio-btn selected" id="medEng" onclick="setOption('med', 'eng')">English</div>
+            </div>
+
+            <button class="save-btn" onclick="applySwitch()">Save & Continue</button>
+            <div style="text-align:center; margin-top:18px; font-size:13px; color:#999; cursor:pointer;" onclick="closeModal()">Cancel</div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION FOR THIS FILE ---
+        let selectedClass = 9;      // Default Class
+        let selectedMedium = 'eng'; // Default Medium
+
+        // -----------------------------------
+
+        function openModal() { 
+            document.getElementById('modal').classList.add('active'); 
+            updateModalVisuals();
+        }
+        function closeModal() { document.getElementById('modal').classList.remove('active'); }
+
+        function setOption(type, val) {
+            if (type === 'cls') selectedClass = val;
+            if (type === 'med') selectedMedium = val;
+            updateModalVisuals();
+        }
+
+        function updateModalVisuals() {
+            // Class Buttons
+            document.getElementById('cls9').className = selectedClass === 9 ? 'radio-btn selected' : 'radio-btn';
+            document.getElementById('cls10').className = selectedClass === 10 ? 'radio-btn selected' : 'radio-btn';
+
+            // Medium Buttons
+            document.getElementById('medOdia').className = selectedMedium === 'odia' ? 'radio-btn selected' : 'radio-btn';
+            document.getElementById('medEng').className = selectedMedium === 'eng' ? 'radio-btn selected' : 'radio-btn';
+        }
+
+        function applySwitch() {
+            // Navigate to: odia9.html, eng9.html, odia10.html, eng10.html
+            const destination = selectedMedium + selectedClass + ".html";
+            window.location.href = destination;
+        }
+    </script>
+</body>
+</html>
